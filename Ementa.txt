@@ -1,0 +1,5 @@
+﻿2feira;18.11.2024;sopa de legumes, pescada cozida com batata;180;sopa de legumes, estufado de vitela;330;sopa de legumes, peito de frango grelhado;250;sopa de legumes, tofu grelhado;220
+3feira;19.11.2024;sopa de cenoura, bacalhau à Brás;200;sopa de cenoura, carne de porco à alentejana;350;sopa de cenoura, salada de frango;240;sopa de cenoura, quinoa com legumes;210
+4feira;20.11.2024;sopa de espinafre, filete de peixe com arroz de legumes;190;sopa de espinafre, bife de vaca grelhado;400;sopa de espinafre, omelete de claras com legumes;230;sopa de espinafre, hambúrguer de grão;200
+5feira;21.11.2024;sopa de feijão, carapau grelhado com batata doce;180;sopa de feijão, almôndegas ao molho de tomate;320;sopa de feijão, peito de peru com salada;240;sopa de feijão, lasanha de berinjela;230
+6feira;22.11.2024;sopa de abóbora, sardinha assada com pimentos;200;sopa de abóbora, frango assado;300;sopa de abóbora, wrap de peru;220;sopa de abóbora, risoto de cogumelos;240
