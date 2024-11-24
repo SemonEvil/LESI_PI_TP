@@ -22,6 +22,8 @@ typedef struct {
     int caloriasVegetariano;    // Calorias do prato vegetariano
 } Ementa;
 
+Ementa dias[5];
+FILE *f_ementa;
 int countEmenta = 0;
 
 void Menu() {
@@ -41,20 +43,21 @@ void Menu() {
 
 void OpenEmenta()
 {
-    const char *cementa = "/Users/simao/Documents/PSI/Projeto/trabalho-prog-v1/trabalho-prog-v1/Ementa.txt";
-    //const char *caminho = "Ementa.txt";
-    FILE *ementa = fopen(cementa, "r");
+    // abrir o ficheiro
+    char *ementa_path = "Ementa.txt";
+    f_ementa = fopen(ementa_path, "r");
+
+    // verificar se existe ementa e guardar dados
     char text[255];
-    Ementa dias[5];
     int index = 0;
     
-    if (ementa == NULL)
+    if (f_ementa == NULL)
     {
         printf("Não existem informações sobre a ementa!\n");
     }
     else
     {
-        while(fgets(text, 255, ementa) != NULL)
+        while(fgets(text, 255, f_ementa) != NULL)
         {
             char *token = strtok(text, ";");
 
@@ -62,6 +65,8 @@ void OpenEmenta()
             if (token != NULL) strncpy(dias[index].diaSemana, token, sizeof(dias[index].diaSemana));
             token = strtok(NULL, ";");
             if (token != NULL) strncpy(dias[index].data, token, sizeof(dias[index].data));
+            // remover \n do dia[i].diaSemana
+            dias[index].diaSemana[strcspn(dias[index].diaSemana, "\n")] = 0;
 
             // Preenche o prato de peixe
             token = strtok(NULL, ";");
@@ -88,13 +93,11 @@ void OpenEmenta()
             if (token != NULL) dias[index].caloriasVegetariano = atoi(token);
 
             index++;
-    
         }
     }
     
     countEmenta = index;
-    fclose(ementa);
-    
+    fclose(f_ementa);
     
     printf("%-10s%-20s%-12s%-20s%-12s%-20s%-12s%-20s%-12s\n",
            "Dia", "Prato Peixe", "Calorias", "Prato Carne", "Calorias",
@@ -111,6 +114,33 @@ void OpenEmenta()
         dias[i].pratoDieta, dias[i].caloriasDieta,
         dias[i].pratoVegetariano, dias[i].caloriasVegetariano);
     }
+
+    printf("-----------------------------------------------------------------------------------------------\n");
+
+    printf("\nPressione Enter para continuar...");
+    scanf("%*c");
+}
+
+void ShowRefeicaoPorDia() {
+    char dia[10];
+    printf("Digite o dia da semana (ex: 2feira): ");
+    scanf("%s", dia);
+
+    for (int i = 0; i < countEmenta; i++) {
+        if(strcmp(dia, "2feira") != 0 && strcmp(dia, "3feira") != 0 && strcmp(dia, "4feira") != 0 && strcmp(dia, "5feira") != 0 && strcmp(dia, "6feira") != 0) {
+            printf("Dia inválido. Tente novamente.\n");
+            break;
+        }
+    }
+
+    for (int i = 0; i < countEmenta; i++) {
+
+        printf("dia: %s | dias[%i]: %s\n", dias[i].diaSemana, i, dia);
+
+        if (strcmp(dia, dias[i].diaSemana) == 0) {
+            // se for igual, 
+        }
+    }
 }
 
 int main() {
@@ -125,6 +155,7 @@ int main() {
         switch (opcao) {
             case 1:
                 printf("Você escolheu a Opção 1.\n");
+                ShowRefeicaoPorDia();
                 break;
             case 2:
                 printf("Você escolheu a Opção 2.\n");
