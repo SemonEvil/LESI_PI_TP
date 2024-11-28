@@ -64,13 +64,13 @@ void openFuncionarios() {
 
     int index = 0;
 
-    if (f_escolhas == NULL) {
+    if (f_funcionarios == NULL) {
         printf("Não existem informações sobre as escolhas!\n");
     } else {
         do
         {
-            fscanf(f_funcionarios, "%[^;];%[^;];%d;%d\n", 
-                  funcionarios[index].numFuncionario, 
+            fscanf(f_funcionarios, "%d;%[^;];%d;%d\n", 
+                  &funcionarios[index].numFuncionario, 
                   funcionarios[index].nome, 
                   &funcionarios[index].NIF, 
                   &funcionarios[index].telefone);
@@ -146,8 +146,8 @@ void ShowRefeicaoPorDia() {
 
 int main() {
     openFuncionarios(); //ERRO NESTA FUNÇ
-    //openEscolhas();
-    //openEmenta();
+    openEscolhas();
+    openEmenta();
     int opcao;
     
     do {
