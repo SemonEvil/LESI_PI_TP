@@ -326,6 +326,70 @@ void ShowUtentes()
     printf("-------------------------------------------------------------------\n");
 }
 
+void ListarRefeicoes(int numFuncionario)
+{
+    printf("\nRefeições do Funcionário nº %d:\n", numFuncionario);
+    printf("-------------------------------------------------------------------------\n");
+    printf("| Data       | Dia da Semana | Tipo de Prato     | Calorias             |\n");
+    printf("-------------------------------------------------------------------------\n");
+
+    int encontrou = 0;
+
+    for (int i = 0; i < countEsc; i++) {
+        // Verificar se o registro pertence ao funcionário
+        if (escolhas[i].numFuncionario == numFuncionario) {
+            for (int j = 0; j < countEmenta; j++) {
+                if (strcmp(escolhas[i].diaSemana, ementa[j].diaSemana) == 0) {
+                    // FUTURO: Verificar se a data está dentro do intervalo fornecido
+                    /*
+                    if (strcmp(ementa[j].data, dataInicio) >= 0 && strcmp(ementa[j].data, dataFim) <= 0) {
+                    */
+
+                    encontrou = 1;
+
+                    // Determinar o prato e calorias
+                    char* prato;
+                    int calorias = 0;
+
+                    if (escolhas[i].tipoPrato == 'C') {
+                        prato = "Carne";
+                        calorias = ementa[j].caloriasCarne;
+                    } else if (escolhas[i].tipoPrato == 'P') {
+                        prato = "Peixe";
+                        calorias = ementa[j].caloriasPeixe;
+                    } else if (escolhas[i].tipoPrato == 'D') {
+                        prato = "Dieta";
+                        calorias = ementa[j].caloriasDieta;
+                    } else if (escolhas[i].tipoPrato == 'V') {
+                        prato = "Vegetariano";
+                        calorias = ementa[j].caloriasVegetariano;
+                    }
+
+                    // Exibir informações da refeição
+                    printf("| %-10s | %-13s | %-17s | %-20d |\n",
+                           ementa[j].data,
+                           ementa[j].diaSemana,
+                           prato,
+                           calorias);
+
+                    // FUTURO: Fechar a lógica do intervalo de datas
+                    /*
+                    }
+                    */
+                }
+            }
+        }
+    }
+
+    if (!encontrou) {
+        printf("Nenhuma refeição encontrada para o funcionário nº %d.\n", numFuncionario);
+    }
+
+    printf("-------------------------------------------------------------------------\n");
+
+    getchar();
+}
+
 int main() {
     openFuncionarios();
     openEscolhas();
@@ -350,7 +414,11 @@ int main() {
                 ShowUtentes();
                 break;
             case 3: //Listar as refeições e a quantidade de calorias de um utente ao longo de um determinado período.
-                printf("Você escolheu a Opção 3.\n");
+                system("clear");
+                printf("Número do funcionário: ");
+                int n;
+                scanf("%d", &n);
+                ListarRefeicoes(n);
                 break;
             case 4: //Calcular as médias das calorias consumidas por refeição por cada dia da semana, em todo o espaço, 
                     //ao longo de um determinado período.
