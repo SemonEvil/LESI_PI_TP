@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 typedef struct {
     int numFuncionario;         // número do funcionário (ex: 0001, 0002, etc.)
@@ -43,6 +42,22 @@ int countFunc = 0;
 int countEmenta = 0;
 int countEsc = 0;
 
+int diaSemanaParaInt(char* dia) {
+    if (strcmp(dia, "2feira") == 0) {
+        return 0;  // Segunda-feira
+    } else if (strcmp(dia, "3feira") == 0) {
+        return 1;  // Terça-feira
+    } else if (strcmp(dia, "4feira") == 0) {
+        return 2;  // Quarta-feira
+    } else if (strcmp(dia, "5feira") == 0) {
+        return 3;  // Quinta-feira
+    } else if (strcmp(dia, "6feira") == 0) {
+        return 4;  // Sexta-feira
+    } else {
+        return -1; // Caso não encontre o dia
+    }
+}
+
 void Menu() {
     system("clear");
     printf("╔════════════════════════════════════════════════╗\n");
@@ -56,19 +71,6 @@ void Menu() {
     printf("║  0 - Sair                                      ║\n");
     printf("╚════════════════════════════════════════════════╝\n");
     printf(" Escolha uma opção: ");
-}
-
-// Função de limpeza apenas para caracteres de controle
-void limparCaracteresDeControle(char *str) {
-    char *src = str, *dst = str;
-    while (*src) {
-        // Mantém apenas caracteres visíveis e espaços
-        if ((*src >= 32 && *src <= 126) || *src == '\t') {
-            *dst++ = *src;
-        }
-        src++;
-    }
-    *dst = '\0';
 }
 
 void openFuncionarios() {
@@ -142,34 +144,20 @@ void openEmenta() {
     fclose(f_ementa);
 }
 
-int diaSemanaParaInt(char* dia) {
-    if (strcmp(dia, "2feira") == 0) {
-        return 0;  // Segunda-feira
-    } else if (strcmp(dia, "3feira") == 0) {
-        return 1;  // Terça-feira
-    } else if (strcmp(dia, "4feira") == 0) {
-        return 2;  // Quarta-feira
-    } else if (strcmp(dia, "5feira") == 0) {
-        return 3;  // Quinta-feira
-    } else if (strcmp(dia, "6feira") == 0) {
-        return 4;  // Sexta-feira
-    } else {
-        return -1; // Caso não encontre o dia
-    }
-}
-
 void ShowRefeicaoPorDia() 
 {
     int dia, sem;
 
-    printf("\n===== Escolha o Dia da Semana =====\n");
-    printf("2 - Segunda-feira\n");
-    printf("3 - Terça-feira\n");
-    printf("4 - Quarta-feira\n");
-    printf("5 - Quinta-feira\n");
-    printf("6 - Sexta-feira\n");
-    printf("0 - Voltar ao menu principal\n");
-    printf("===================================\n");
+    printf("----------------------------------\n");
+    printf("|    ESCOLHA UM DIA DA SEMANA    |\n");
+    printf("----------------------------------\n");
+    printf("|  2. Segunda-feira              |\n");
+    printf("|  3. Terça-feira                |\n");
+    printf("|  4. Quarta-feira               |\n");
+    printf("|  5. Quinta-feira               |\n");
+    printf("|  6. Sexta-feira                |\n");
+    printf("|  0. Voltar ao menu principal   |\n");
+    printf("----------------------------------\n");
     printf("Escolha um dia: ");
     scanf("%d", &dia);
 
@@ -206,41 +194,40 @@ void ShowRefeicaoPorDia()
     }
     // Títulos de refeição
     system("clear");
-    printf("\n==== Refeições para o dia: %s ====\n", ementa[sem].diaSemana);
-    printf("====================================\n");
+    printf("Refeições requeridas do utente para o dia %s:\n", ementa[sem].diaSemana);
+    printf("----------------------------------------------------------\n");
+    printf("| Nº Func. | Nome                      | Prato           |\n");
+    printf("----------------------------------------------------------\n");
 
     char prato[999];
 
     for (int i = 0; i < countEsc; i++) 
-    {       
+    {
         int escolhaDiaInt = diaSemanaParaInt(escolhas[i].diaSemana);
-           
-        if (escolhaDiaInt == sem || escolhas[i].diaSemana == ementa[sem].diaSemana)
+
+        // Verifica se a refeição é para o dia selecionado
+        if (escolhaDiaInt == sem || strcmp(escolhas[i].diaSemana, ementa[sem].diaSemana) == 0)
         {
+            // Atribui o prato de acordo com o tipo
             switch (escolhas[i].tipoPrato)
             {
-                case 'P':
-                    strcpy(prato, ementa[sem].pratoPeixe); 
-                    break;
-                case 'C': 
-                    strcpy(prato, ementa[sem].pratoCarne); 
-                    break;
-                case 'D': 
-                    strcpy(prato, ementa[sem].pratoDieta); 
-                    break;
-                case 'V': 
-                    strcpy(prato, ementa[sem].pratoVegetariano); 
-                    break;
+                case 'P': strcpy(prato, ementa[sem].pratoPeixe); break;
+                case 'C': strcpy(prato, ementa[sem].pratoCarne); break;
+                case 'D': strcpy(prato, ementa[sem].pratoDieta); break;
+                case 'V': strcpy(prato, ementa[sem].pratoVegetariano); break;
+                default: strcpy(prato, "Indefinido"); break;
             }
-            // Exibe a refeição de um funcionário de forma mais bonita
-            printf("\n---------------------------------------------------\n");
-            printf("| Funcionario: %-4d | %-25s | Prato: %s |\n", 
-                    funcionarios[escolhas[i].numFuncionario - 1].numFuncionario, 
-                    funcionarios[escolhas[i].numFuncionario - 1].nome, 
-                    prato);
-            printf("---------------------------------------------------\n");
+
+            // Exibe os dados do funcionário e o prato escolhido em formato de tabela
+            printf("| %-9d | %-24s | %-18s |\n", 
+                   funcionarios[escolhas[i].numFuncionario - 1].numFuncionario, 
+                   funcionarios[escolhas[i].numFuncionario - 1].nome, 
+                   prato);
         }
     }
+
+    printf("----------------------------------------------------------\n");
+    printf("\nPressione Enter para voltar ao menu...");
     getchar();
 }
 
@@ -291,6 +278,8 @@ void ShowUtentes()
     }
 
     printf("-------------------------------------------------------------------\n");
+    printf("\nPressione Enter para voltar ao menu...");  
+    getchar();
 }
 
 void ListarRefeicoes(int numFuncionario)
@@ -353,7 +342,7 @@ void ListarRefeicoes(int numFuncionario)
     }
 
     printf("-------------------------------------------------------------------------\n");
-
+    printf("\nPressione Enter para voltar ao menu...");
     getchar();
 }
 
@@ -432,9 +421,9 @@ void CalcularMediaCalorias() {
 void TabelaEmenta(int numeroFuncionario) 
 {
     printf("Ementa Semanal para o Utente #%d\n", numeroFuncionario);
-    printf("+-----------+---------------------------------------------------------------------------------------------------------+\n");
+    printf("+-----------+-------------+----------+-------------+----------+-------------+----------+-------------------+----------+\n");
     printf("| Dia       | Prato Peixe | Calorias | Prato Carne | Calorias | Prato Dieta | Calorias | Prato Vegetariano | Calorias |\n");
-    printf("+-----------+---------------------------------------------------------------------------------------------------------+\n");
+    printf("+-----------+-------------+----------+-------------+----------+-------------+----------+-------------------+----------+\n");
 
     // Percorrer os dias da semana e gerar a tabela
     for (int i = 0; i < countEmenta; i++) {
@@ -448,6 +437,9 @@ void TabelaEmenta(int numeroFuncionario)
             }
         }
     }
+
+    printf("+-----------+-------------+----------+-------------+----------+-------------+----------+-------------------+----------+\n");
+    printf("\nPressione Enter para voltar ao menu...");
     getchar();
 }
 
@@ -477,8 +469,15 @@ int main() {
             case 3: //Listar as refeições e a quantidade de calorias de um utente ao longo de um determinado período.
                 system("clear");
                 printf("Digite o número do utente para exibir a ementa: ");
+
                 int n1;
                 scanf("%d", &n1);
+
+                 if (n1 == 0)
+                {
+                    break;
+                }
+
                 system("clear");
                 ListarRefeicoes(n1);
                 break;
@@ -490,8 +489,15 @@ int main() {
             case 5: //Gerar a tabela correspondente à ementa semanal usufruída por um determinado utente
                 system("clear");
                 printf("Digite o número do utente para exibir a ementa: ");
+
                 int n2;
                 scanf("%d", &n2);
+
+                if (n2 == 0)
+                {
+                    break;
+                }
+
                 system("clear");
                 TabelaEmenta(n2);
                 break;
@@ -502,10 +508,10 @@ int main() {
                 break;
             default:
                 printf("Opção inválida. Tente novamente.\n");
+                break;
         }
 
         if (opcao != 0) {
-            printf("\nPressione Enter para voltar ao menu...");
             getchar(); // Captura o "Enter" restante no buffer
         }
 
