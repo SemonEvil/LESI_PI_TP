@@ -74,44 +74,16 @@ void limparCaracteresDeControle(char *str) {
 void openFuncionarios() {
     FILE *f_funcionarios = fopen("funcionarios.txt", "r");
     if (!f_funcionarios) {
-        perror("Erro ao abrir o arquivo");
+        perror("Não existem informações sobre as escolhas!\n");
     }
+
     int index = 0;
-
     char linha[256];
+
     while (fgets(linha, sizeof(linha), f_funcionarios)) {
-        // Remove newline ou carriage return
-        linha[strcspn(linha, "\r\n")] = 0;
-
-        // Limpa caracteres de controle
-        limparCaracteresDeControle(linha);
-
-        // Debug da linha limpa
-        printf("Linha limpa (com delimitadores): -->%s<--\n", linha);
-
-        // Variáveis para leitura
-        unsigned int numFuncionario, NIF, telefone;
-        char nome[999];
-
-
-        // Parse da linha
-        int resultado = sscanf(linha, "%d;%[^;];%d;%d", 
-                               &numFuncionario, nome, &NIF, &telefone);
-
-        if (resultado == 4) {
-            printf("Lido com sucesso: %u, %s, %u, %u\n", 
-                   numFuncionario, nome, NIF, telefone);
-
-            // Armazena no array
-            funcionarios[index].numFuncionario = numFuncionario;
-            strcpy(funcionarios[index].nome, nome);
-            funcionarios[index].NIF = NIF;
-            funcionarios[index].telefone = telefone;
-
+        if (sscanf(linha, "%d;%[^;];%d;%d", &funcionarios[index].numFuncionario, funcionarios[index].nome, &funcionarios[index].NIF, &funcionarios[index].telefone) == 4)
+        {
             index++;
-        } else {
-            printf("Erro ao processar a linha: -->%s<--\n", linha);
-            printf("sscanf retornou: %d\n", resultado);
         }
     }
 
@@ -121,7 +93,7 @@ void openFuncionarios() {
 
 void openEscolhas() {
     // abrir o ficheiro
-    char *escolhas_path = "Escolhas.txt";
+    char *escolhas_path = "escolhas.txt";
     f_escolhas = fopen(escolhas_path, "r");
     
     int index = 0;
@@ -143,7 +115,7 @@ void openEscolhas() {
 
 void openEmenta() {
     // abrir o ficheiro
-    char *ementa_path = "Ementa.txt";
+    char *ementa_path = "ementa.txt";
     f_ementa = fopen(ementa_path, "r");
 
     // verificar se existe ementa e guardar dados
@@ -185,8 +157,6 @@ int diaSemanaParaInt(char* dia) {
         return -1; // Caso não encontre o dia
     }
 }
-
-
 
 void ShowRefeicaoPorDia() 
 {
@@ -244,9 +214,6 @@ void ShowRefeicaoPorDia()
     for (int i = 0; i < countEsc; i++) 
     {       
         int escolhaDiaInt = diaSemanaParaInt(escolhas[i].diaSemana);
-
-          printf("Escolha: %s (convertido para %d), Ementa: %s (convertido para %d)\n", 
-          escolhas[i].diaSemana, escolhaDiaInt, ementa[sem].diaSemana, sem);
            
         if (escolhaDiaInt == sem || escolhas[i].diaSemana == ementa[sem].diaSemana)
         {
@@ -292,7 +259,7 @@ void ShowUtentes()
     }
 
     // Cabeçalho
-    printf("\nLista de Utentes:\n");
+    printf("Lista de Utentes:\n");
     printf("-------------------------------------------------------------------\n");
     printf("| Nº Func. | Nome                      | Nº Refeições | Custo (€) |\n");
     printf("-------------------------------------------------------------------\n");
@@ -328,7 +295,7 @@ void ShowUtentes()
 
 void ListarRefeicoes(int numFuncionario)
 {
-    printf("\nRefeições do Funcionário nº %d:\n", numFuncionario);
+    printf("Refeições do Funcionário nº %d:\n", numFuncionario);
     printf("-------------------------------------------------------------------------\n");
     printf("| Data       | Dia da Semana | Tipo de Prato     | Calorias             |\n");
     printf("-------------------------------------------------------------------------\n");
@@ -390,6 +357,100 @@ void ListarRefeicoes(int numFuncionario)
     getchar();
 }
 
+void CalcularMediaCalorias() {
+    printf("\nMédias de Calorias Consumidas por Dia da Semana (Segunda a Sexta):\n");
+    printf("----------------------------------------------------------\n");
+    printf("| Dia da Semana | Total de Refeições | Média de Calorias |\n");
+    printf("----------------------------------------------------------\n");
+
+    int totalCalorias[5] = {0}; // Total de calorias para cada dia da semana (segunda a sexta)
+    int totalRefeicoes[5] = {0}; // Total de refeições para cada dia da semana
+
+    for (int i = 0; i < countEsc; i++) {
+        for (int j = 0; j < countEmenta; j++) {
+            //printf("Comparando: %s com %s\n", escolhas[i].diaSemana, ementa[j].diaSemana); // Depuração
+            if (strcmp(escolhas[i].diaSemana, ementa[j].diaSemana) == 0) {
+                // FUTURO: Verificar se a data está dentro do intervalo fornecido
+                /*
+                if (strcmp(ementa[j].data, dataInicio) >= 0 && strcmp(ementa[j].data, dataFim) <= 0) {
+                */
+
+                // Determinar o índice do dia da semana (segunda a sexta: 0 a 4)
+                int diaSemanaIndex = -1;
+
+                if (strcmp(ementa[j].diaSemana, "2feira") == 0) 
+                    diaSemanaIndex = 0;
+                else if (strcmp(ementa[j].diaSemana, "3feira") == 0) 
+                    diaSemanaIndex = 1;
+                else if (strcmp(ementa[j].diaSemana, "4feira") == 0) 
+                    diaSemanaIndex = 2;
+                else if (strcmp(ementa[j].diaSemana, "5feira") == 0) 
+                    diaSemanaIndex = 3;
+                else if (strcmp(ementa[j].diaSemana, "6feira") == 0) 
+                    diaSemanaIndex = 4;
+
+                if (diaSemanaIndex >= 0) {
+                    // Somar calorias com base no tipo de prato escolhido
+                    if (escolhas[i].tipoPrato == 'C') {
+                        totalCalorias[diaSemanaIndex] += ementa[j].caloriasCarne;
+                    } else if (escolhas[i].tipoPrato == 'P') {
+                        totalCalorias[diaSemanaIndex] += ementa[j].caloriasPeixe;
+                    } else if (escolhas[i].tipoPrato == 'D') {
+                        totalCalorias[diaSemanaIndex] += ementa[j].caloriasDieta;
+                    } else if (escolhas[i].tipoPrato == 'V') {
+                        totalCalorias[diaSemanaIndex] += ementa[j].caloriasVegetariano;
+                    }
+
+                    totalRefeicoes[diaSemanaIndex]++;
+                }
+
+                // FUTURO: Fechar a lógica do intervalo de datas
+                /*
+                }
+                */
+            }
+        }
+    }
+
+    // Exibir os resultados
+    const char* diasSemana[] = {"2feira", "3feira", "4feira", "5feira", "6feira"};
+
+    for (int i = 0; i < 5; i++) {
+        if (totalRefeicoes[i] > 0) {
+            printf("| %-12s  | %-17d  | %-17.2f |\n", 
+                   diasSemana[i], 
+                   totalRefeicoes[i], 
+                   (float)totalCalorias[i] / totalRefeicoes[i]);
+        } else {
+            printf("| %-12s  | %-17d  | %-17s |\n", diasSemana[i], 0, "N/A");
+        }
+    }
+
+    printf("----------------------------------------------------------\n");
+}
+
+void TabelaEmenta(int numeroFuncionario) 
+{
+    printf("Ementa Semanal para o Utente #%d\n", numeroFuncionario);
+    printf("+-----------+---------------------------------------------------------------------------------------------------------+\n");
+    printf("| Dia       | Prato Peixe | Calorias | Prato Carne | Calorias | Prato Dieta | Calorias | Prato Vegetariano | Calorias |\n");
+    printf("+-----------+---------------------------------------------------------------------------------------------------------+\n");
+
+    // Percorrer os dias da semana e gerar a tabela
+    for (int i = 0; i < countEmenta; i++) {
+        // Para cada escolha do utente, verificamos se ele escolheu um prato nesse dia
+        for (int j = 0; j < countEsc; j++) {
+            if (escolhas[j].numFuncionario == numeroFuncionario && strcmp(escolhas[j].diaSemana, ementa[i].diaSemana) == 0) {
+                printf("| %-10s| ", ementa[i].diaSemana);
+
+                // Finaliza a linha
+                printf("\n");
+            }
+        }
+    }
+    getchar();
+}
+
 int main() {
     openFuncionarios();
     openEscolhas();
@@ -415,17 +476,24 @@ int main() {
                 break;
             case 3: //Listar as refeições e a quantidade de calorias de um utente ao longo de um determinado período.
                 system("clear");
-                printf("Número do funcionário: ");
-                int n;
-                scanf("%d", &n);
-                ListarRefeicoes(n);
+                printf("Digite o número do utente para exibir a ementa: ");
+                int n1;
+                scanf("%d", &n1);
+                system("clear");
+                ListarRefeicoes(n1);
                 break;
             case 4: //Calcular as médias das calorias consumidas por refeição por cada dia da semana, em todo o espaço, 
                     //ao longo de um determinado período.
-                printf("Você escolheu a Opção 4.\n");
+                system("clear");
+                CalcularMediaCalorias();
                 break;
             case 5: //Gerar a tabela correspondente à ementa semanal usufruída por um determinado utente
-                printf("Você escolheu a Opção 5.\n");
+                system("clear");
+                printf("Digite o número do utente para exibir a ementa: ");
+                int n2;
+                scanf("%d", &n2);
+                system("clear");
+                TabelaEmenta(n2);
                 break;
             case 0:
                 printf("A sair do programa...\n");
