@@ -7,3 +7,9 @@
 4feira;0001;D
 4feira;0002;V
 4feira;0003;P
+5feira;0001;D
+5feira;0002;C
+5feira;0003;P
+6feira;0001;C
+6feira;0002;P
+6feira;0003;V
