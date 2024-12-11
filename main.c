@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 typedef struct {
     int numFuncionario;         // número do funcionário (ex: 0001, 0002, etc.)
@@ -10,8 +11,8 @@ typedef struct {
 } Funcionarios;
 
 typedef struct {
-    char diaSemana[10];         // dia da semana (2feira, 3feira, etc.)
-    char data[12];              // data (ex: 18.11.2024)
+    char diaSemana[6];          // dia da semana (2feira, 3feira, etc.)
+    struct tm data;             // data (ex: 18.11.2024)
     char pratoPeixe[100];       // nome do prato de peixe
     int caloriasPeixe;          // calorias do prato de peixe
     char pratoCarne[100];       // nome do prato de carne
@@ -23,14 +24,14 @@ typedef struct {
 } Ementa;
 
 typedef struct {
-    char diaSemana[10];         // dia da semana (2feira, 3feira, etc.)
+    char diaSemana[6];         // dia da semana (2feira, 3feira, etc.)
     int numFuncionario;         // número do funcionário (ex: 0001, 0002, etc.)
     char tipoPrato;             // tipo do prato (C- prato de carne, P - prato peixe, D – dieta, V - vegetariano)
 } Escolhas;
 
 
 // variáveis globais
-Ementa ementa[5];
+Ementa ementa[10];
 Escolhas escolhas[999];
 Funcionarios funcionarios[999];
 
@@ -42,20 +43,38 @@ int countFunc = 0;
 int countEmenta = 0;
 int countEsc = 0;
 
-int diaSemanaParaInt(char* dia) {
-    if (strcmp(dia, "2feira") == 0) {
+int diaSemanaParaInt(char* dia) 
+{
+    if (strcmp(dia, "2feira") == 0) 
+    {
         return 0;  // Segunda-feira
-    } else if (strcmp(dia, "3feira") == 0) {
+    } 
+    else if (strcmp(dia, "3feira") == 0) 
+    {
         return 1;  // Terça-feira
-    } else if (strcmp(dia, "4feira") == 0) {
+    } 
+    else if (strcmp(dia, "4feira") == 0) 
+    {
         return 2;  // Quarta-feira
-    } else if (strcmp(dia, "5feira") == 0) {
+    } 
+    else if (strcmp(dia, "5feira") == 0) 
+    {
         return 3;  // Quinta-feira
-    } else if (strcmp(dia, "6feira") == 0) {
+    } 
+    else if (strcmp(dia, "6feira") == 0) 
+    {
         return 4;  // Sexta-feira
-    } else {
+    } 
+    else 
+    {
         return -1; // Caso não encontre o dia
     }
+}
+
+
+void dataToSring(struct tm data, char dataf[])
+{
+    strftime(dataf, 11, "%d/%m/%Y", &data);
 }
 
 void Menu() {
@@ -130,14 +149,19 @@ void openEmenta() {
     } 
     else 
     {
+        char dataStr[11];
         do 
         {
             fscanf(f_ementa, "%[^;];%[^;];%[^;];%d;%[^;];%d;%[^;];%d;%[^;];%d\n", 
-            ementa[index].diaSemana, ementa[index].data, ementa[index].pratoPeixe, &ementa[index].caloriasPeixe,
+            ementa[index].diaSemana, dataStr, ementa[index].pratoPeixe, &ementa[index].caloriasPeixe,
             ementa[index].pratoCarne, &ementa[index].caloriasCarne, ementa[index].pratoDieta, &ementa[index].caloriasDieta,
             ementa[index].pratoVegetariano, &ementa[index].caloriasVegetariano);
+
+            memset(&ementa[index].data, 0, sizeof(struct tm)); // Limpar a estrutura antes de usar
+            strptime(dataStr, "%d.%m.%Y", &ementa[index].data);
+
             index++;
-        } while(!feof(f_ementa));
+        } while(!feof(f_ementa));   
     }
 
     countEmenta = index;
@@ -195,9 +219,9 @@ void ShowRefeicaoPorDia()
     // Títulos de refeição
     system("clear");
     printf("Refeições requeridas do utente para o dia %s:\n", ementa[sem].diaSemana);
-    printf("----------------------------------------------------------\n");
-    printf("| Nº Func. | Nome                      | Prato           |\n");
-    printf("----------------------------------------------------------\n");
+    printf("---------------------------------------------------------------------------------------\n");
+    printf("| Nº Func. | Nome                     | Prato                                         |\n");
+    printf("---------------------------------------------------------------------------------------\n");
 
     char prato[999];
 
@@ -219,19 +243,19 @@ void ShowRefeicaoPorDia()
             }
 
             // Exibe os dados do funcionário e o prato escolhido em formato de tabela
-            printf("| %-9d | %-24s | %-18s |\n", 
+            printf("| %-9d | %-24s | %-45s |\n", 
                    funcionarios[escolhas[i].numFuncionario - 1].numFuncionario, 
                    funcionarios[escolhas[i].numFuncionario - 1].nome, 
                    prato);
         }
     }
 
-    printf("----------------------------------------------------------\n");
+    printf("---------------------------------------------------------------------------------------\n");
     printf("\nPressione Enter para voltar ao menu...");
     getchar();
 }
 
-void ShowUtentes()
+void ListarUtentes()
 {
     // Ordenar funcionários por número (decrescente)
     for (int i = 0; i < countFunc - 1; i++) {
@@ -269,7 +293,7 @@ void ShowUtentes()
 
         // Exibir dados do funcionário
         if (totalRefeicoes > 0) {
-            printf("| %-9d | %-24s | %-12d | %-9.2f |\n",
+            printf("| %-9d | %-24s  | %-12d | %-9.2f |\n",
                    funcionarios[i].numFuncionario,
                    funcionarios[i].nome,
                    totalRefeicoes,
@@ -320,10 +344,13 @@ void ListarRefeicoes(int numFuncionario)
                         prato = "Vegetariano";
                         calorias = ementa[j].caloriasVegetariano;
                     }
+                    
 
+                    char data[11];
+                    dataToSring(ementa[j].data, data);
                     // Exibir informações da refeição
                     printf("| %-10s | %-13s | %-17s | %-20d |\n",
-                           ementa[j].data,
+                           data,
                            ementa[j].diaSemana,
                            prato,
                            calorias);
@@ -480,7 +507,7 @@ int main() {
             case 2: //Listagem dos utentes, ordenada por ordem decrescente do número de funcionário, com o número de refeições servidas 
                     //na semana e o total da despesa, para ser entregue no serviço de Recursos Humanos, para efeitos de desconto no salário.
                 system("clear");
-                ShowUtentes();
+                ListarUtentes();
                 break;
             case 3: //Listar as refeições e a quantidade de calorias de um utente ao longo de um determinado período.
                 system("clear");
@@ -532,6 +559,6 @@ int main() {
         }
 
     } while (opcao != 0);
-
+    system("clear");
     return 0;
 }
