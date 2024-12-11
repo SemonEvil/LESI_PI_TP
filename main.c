@@ -170,89 +170,80 @@ void openEmenta() {
 
 void ShowRefeicaoPorDia() 
 {
-    int dia, sem;
-
-    printf("----------------------------------\n");
-    printf("|    ESCOLHA UM DIA DA SEMANA    |\n");
-    printf("----------------------------------\n");
-    printf("|  2. Segunda-feira              |\n");
-    printf("|  3. Terça-feira                |\n");
-    printf("|  4. Quarta-feira               |\n");
-    printf("|  5. Quinta-feira               |\n");
-    printf("|  6. Sexta-feira                |\n");
-    printf("|  0. Voltar ao menu principal   |\n");
-    printf("----------------------------------\n");
-    printf("Escolha um dia: ");
-    scanf("%d", &dia);
-
-    switch (dia) 
+    int sem;
+    char dataInput[11];
+    printf("Insira uma data no formato DD/MM/AAAA (ou 0 para sair): ");
+    scanf("%s", dataInput);
+    
+    if (!strcmp(dataInput, "0"))
     {
-        case 2: //Segunda
-            sem = 0; 
-            break;
-
-        case 3: //Terça
-            sem = 1; 
-            break;
-
-        case 4: //Quarta
-            sem = 2; 
-            break;
-
-        case 5: //Quinta
-            sem = 3; 
-            break;
-
-        case 6: //Sexta
-            sem = 4; 
-            break;
-
-        case 0:
-            printf("\nVoltando ao menu principal...\n");
-            system("clear");
-            return;
-        default:
-            printf("\nOpção inválida. Tente novamente.\n");
-            system("clear");
-            return;
+        return;
     }
-    // Títulos de refeição
-    system("clear");
-    printf("Refeições requeridas do utente para o dia %s:\n", ementa[sem].diaSemana);
-    printf("---------------------------------------------------------------------------------------\n");
-    printf("| Nº Func. | Nome                     | Prato                                         |\n");
-    printf("---------------------------------------------------------------------------------------\n");
-
-    char prato[999];
-
-    for (int i = 0; i < countEsc; i++) 
-    {
-        int escolhaDiaInt = diaSemanaParaInt(escolhas[i].diaSemana);
-
-        // Verifica se a refeição é para o dia selecionado
-        if (escolhaDiaInt == sem || strcmp(escolhas[i].diaSemana, ementa[sem].diaSemana) == 0)
-        {
-            // Atribui o prato de acordo com o tipo
-            switch (escolhas[i].tipoPrato)
-            {
-                case 'P': strcpy(prato, ementa[sem].pratoPeixe); break;
-                case 'C': strcpy(prato, ementa[sem].pratoCarne); break;
-                case 'D': strcpy(prato, ementa[sem].pratoDieta); break;
-                case 'V': strcpy(prato, ementa[sem].pratoVegetariano); break;
-                default: strcpy(prato, "Indefinido"); break;
-            }
-
-            // Exibe os dados do funcionário e o prato escolhido em formato de tabela
-            printf("| %-9d | %-24s | %-45s |\n", 
-                   funcionarios[escolhas[i].numFuncionario - 1].numFuncionario, 
-                   funcionarios[escolhas[i].numFuncionario - 1].nome, 
-                   prato);
+    
+    // Substituir os delimitadores (caso sejam "-" ou ".") por "/"
+    for (int i = 0; i < strlen(dataInput); i++) {
+        if (dataInput[i] == '-' || dataInput[i] == '.') {
+            dataInput[i] = '/';
         }
     }
 
-    printf("---------------------------------------------------------------------------------------\n");
+    struct tm dataEscolhida = {0};
+    strptime(dataInput, "%d/%m/%Y", &dataEscolhida); 
+
+    int found = 0;
+    for (int i = 0; i < countEmenta; i++) 
+    {
+        // Comparando a data fornecida com a data da ementa
+        if (difftime(mktime(&dataEscolhida), mktime(&ementa[i].data)) == 0) 
+        {
+            found = 1;
+            system("clear");
+            printf("Refeições requeridas para o dia %02d/%02d/%d\n", 
+                   ementa[i].data.tm_mday, 
+                   ementa[i].data.tm_mon + 1, 
+                   ementa[i].data.tm_year + 1900);
+            printf("-------------------------------------------------------------------------------------------------------\n");
+            printf("| Nº Func. | Nome                     | Dia da semana | Prato                                         |\n");
+            printf("-------------------------------------------------------------------------------------------------------\n");
+
+            char prato[999];
+            // Exibe as refeições selecionadas para este dia
+            for (int j = 0; j < countEsc; j++) 
+            {
+                // Verifica se a refeição é para o dia selecionado
+                if (difftime(mktime(&dataEscolhida), mktime(&ementa[i].data)) == 0 && 
+                    strcmp(escolhas[j].diaSemana, ementa[i].diaSemana) == 0) 
+                {
+                    // Atribui o prato de acordo com o tipo
+                    switch (escolhas[j].tipoPrato)
+                    {
+                        case 'P': strcpy(prato, ementa[i].pratoPeixe); break;
+                        case 'C': strcpy(prato, ementa[i].pratoCarne); break;
+                        case 'D': strcpy(prato, ementa[i].pratoDieta); break;
+                        case 'V': strcpy(prato, ementa[i].pratoVegetariano); break;
+                        default: strcpy(prato, "Indefinido"); break;
+                    }
+
+                    // Exibe os dados do funcionário e o prato escolhido em formato de tabela
+                    printf("| %-8d | %-24s | %-13s | %-45s |\n", 
+                           funcionarios[escolhas[j].numFuncionario - 1].numFuncionario, 
+                           funcionarios[escolhas[j].numFuncionario - 1].nome, escolhas[j].diaSemana, 
+                           prato);
+                }
+            }
+
+            printf("-------------------------------------------------------------------------------------------------------\n");
+            break;
+        }
+    }
+
+    if (!found) 
+    {
+        printf("Não há ementa registrada para a data %s.\n", dataInput);
+    }
+
     printf("\nPressione Enter para voltar ao menu...");
-    getchar();
+    getchar();  // Para limpar o buffer do teclado
 }
 
 void ListarUtentes()
