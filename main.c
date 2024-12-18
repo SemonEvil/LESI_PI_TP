@@ -363,22 +363,18 @@ void ListarRefeicoes(int numFuncionario)
     getchar();
 }
 
-void CalcularMediaCalorias() {
-
-    char dataInput1[11], dataInput2[11];;
+void CalcularMediaCalorias() 
+{
+    char dataInput1[11], dataInput2[11];
     printf("Insira uma 1ª data no formato DD/MM/AAAA (ou 0 para sair): ");
     scanf("%s", dataInput1);
 
-    if (!strcmp(dataInput1, "0"))
-    {
-        return;
-    }
+    if (!strcmp(dataInput1, "0")) return;
 
-    // Substituir os delimitadores (caso sejam "-" ou ".") por "/"
-    for (int i = 0; i < strlen(dataInput1); i++) {
-        if (dataInput1[i] == '-' || dataInput1[i] == '.') {
-            dataInput1[i] = '/';
-        }
+    // Substituir delimitadores por "/"
+    for (int i = 0; i < strlen(dataInput1); i++) 
+    {
+        if (dataInput1[i] == '-' || dataInput1[i] == '.') dataInput1[i] = '/';
     }
 
     struct tm data1 = {0};
@@ -387,118 +383,113 @@ void CalcularMediaCalorias() {
     printf("Insira uma 2ª data no formato DD/MM/AAAA (ou 0 para sair): ");
     scanf("%s", dataInput2);
 
-   if (!strcmp(dataInput2, "0"))
-    {
-        return;
-    }
+    if (!strcmp(dataInput2, "0")) return;
 
-    // Substituir os delimitadores (caso sejam "-" ou ".") por "/"
-    for (int i = 0; i < strlen(dataInput2); i++) {
-        if (dataInput2[i] == '-' || dataInput2[i] == '.') {
-            dataInput2[i] = '/';
-        }
+
+    // Substituir delimitadores por "/"
+    for (int i = 0; i < strlen(dataInput2); i++) 
+    {
+        if (dataInput2[i] == '-' || dataInput2[i] == '.') dataInput2[i] = '/';
     }
 
     struct tm data2 = {0};
     strptime(dataInput2, "%d/%m/%Y", &data2);
 
+    // Ordenar as datas para determinar o início e o fim
     time_t time1 = mktime(&data1);
     time_t time2 = mktime(&data2);
 
-    struct tm dataInicio = {0};  
-    struct tm dataFim = {0};
-    
-    // Comparação
-    if (time1 > time2) 
-    {
-        memcpy(&dataFim, &data1, sizeof(struct tm));  // Copia data1 para dataFim
-        memcpy(&dataInicio, &data2, sizeof(struct tm)); // Copia data2 para dataInicio
-    } 
-    else
-    {
-        memcpy(&dataFim, &data2, sizeof(struct tm));  // Copia data2 para dataFim
-        memcpy(&dataInicio, &data1, sizeof(struct tm)); // Copia data1 para dataInicio
-    }
-
-    char dI[11], dF[11];
-    dataToSring(dataInicio, dI);
-    dataToSring(dataFim, dF);
+    struct tm dataInicio = time1 < time2 ? data1 : data2;
+    struct tm dataFim = time1 < time2 ? data2 : data1;
 
     system("clear");
-    printf("\nMédias de Calorias Consumidas entre o dia %s e %s\n", dI, dF);
+    printf("\nMédias de Calorias Consumidas entre o dia %02d/%02d/%04d e %02d/%02d/%04d\n", 
+           dataInicio.tm_mday, dataInicio.tm_mon + 1, dataInicio.tm_year + 1900,
+           dataFim.tm_mday, dataFim.tm_mon + 1, dataFim.tm_year + 1900);
     printf("----------------------------------------------------------\n");
     printf("| Dia da Semana | Total de Refeições | Média de Calorias |\n");
     printf("----------------------------------------------------------\n");
 
-    int index = 0;
-    int totalCalorias[5] = {0}; // Total de calorias para cada dia da semana (segunda a sexta)
-    int totalRefeicoes[5] = {0}; // Total de refeições para cada dia da semana
-    int diasPresentes[5] = {0};  // Marcar quais dias da semana estão presentes no intervalo (0 a 4)
+    // Utilizar uma estrutura dinâmica para armazenar os resultados
+    struct DiaCalorias 
+    {
+        char diaSemana[10];
+        int totalCalorias;
+        int totalRefeicoes;
+    };
+    
+    struct DiaCalorias *diasCalorias = NULL;
+    int diasCount = 0;
 
-    for (int i = 0; i < countEsc; i++) {
+    for (int i = 0; i < countEsc; i++) 
+    {
         for (int j = 0; j < countEmenta; j++) 
         {
-            time_t timeEmenta = mktime(&ementa[j].data);
-            time_t timeInicio = mktime(&dataInicio);
-            time_t timeFim = mktime(&dataFim);
-            
-            // Verificar se a data da ementa está dentro do intervalo de datas
-            if (timeEmenta >= timeInicio && timeEmenta <= timeFim) 
-            {
-                // Determinar o índice do dia da semana
-                int diaSemanaIndex = -1;
-                if (strcmp(ementa[j].diaSemana, "2feira") == 0) 
-                    diaSemanaIndex = 0;
-                else if (strcmp(ementa[j].diaSemana, "3feira") == 0) 
-                    diaSemanaIndex = 1;
-                else if (strcmp(ementa[j].diaSemana, "4feira") == 0) 
-                    diaSemanaIndex = 2;
-                else if (strcmp(ementa[j].diaSemana, "5feira") == 0) 
-                    diaSemanaIndex = 3;
-                else if (strcmp(ementa[j].diaSemana, "6feira") == 0) 
-                    diaSemanaIndex = 4;
-
-                // Se o dia da semana for válido, calcular as calorias
-                if (diaSemanaIndex >= 0) 
+            // Verificar se a escolha corresponde à ementa e está no intervalo de datas
+            if (strcmp(escolhas[i].diaSemana, ementa[j].diaSemana) == 0 && 
+                difftime(mktime(&ementa[j].data), mktime(&dataInicio)) >= 0 &&
+                difftime(mktime(&ementa[j].data), mktime(&dataFim)) <= 0)
                 {
-                    // Somar calorias com base no tipo de prato escolhido
-                    if (escolhas[i].tipoPrato == 'C') {
-                        totalCalorias[diaSemanaIndex] += ementa[j].caloriasCarne;
-                    } else if (escolhas[i].tipoPrato == 'P') {
-                        totalCalorias[diaSemanaIndex] += ementa[j].caloriasPeixe;
-                    } else if (escolhas[i].tipoPrato == 'D') {
-                        totalCalorias[diaSemanaIndex] += ementa[j].caloriasDieta;
-                    } else if (escolhas[i].tipoPrato == 'V') {
-                        totalCalorias[diaSemanaIndex] += ementa[j].caloriasVegetariano;
+                
+                // Verificar se o dia já está nos resultados
+                int encontrado = -1;
+                for (int k = 0; k < diasCount; k++) 
+                {
+                    if (strcmp(diasCalorias[k].diaSemana, ementa[j].diaSemana) == 0) 
+                    {
+                        encontrado = k;
+                        break;
                     }
-                    totalRefeicoes[diaSemanaIndex]++;
-                    printf("\n%d\n", totalRefeicoes[diaSemanaIndex]);
-                    diasPresentes[diaSemanaIndex] = 1;  // Marca que este dia apareceu no intervalo
                 }
+
+                // Se o dia ainda não existe, adicionar à estrutura dinâmica
+                if (encontrado == -1) 
+                {
+                    diasCalorias = realloc(diasCalorias, (diasCount + 1) * sizeof(struct DiaCalorias));
+                    strcpy(diasCalorias[diasCount].diaSemana, ementa[j].diaSemana);
+                    diasCalorias[diasCount].totalCalorias = 0;
+                    diasCalorias[diasCount].totalRefeicoes = 0;
+                    encontrado = diasCount;
+                    diasCount++;
+                }
+
+                // Incrementar as calorias e refeições para o dia encontrado
+                switch (escolhas[i].tipoPrato) 
+                {
+                    case 'C':
+                        diasCalorias[encontrado].totalCalorias += ementa[j].caloriasCarne;
+                        break;
+
+                    case 'P':
+                        diasCalorias[encontrado].totalCalorias += ementa[j].caloriasPeixe;
+                        break;
+
+                    case 'D':
+                        diasCalorias[encontrado].totalCalorias += ementa[j].caloriasDieta;
+                        break;
+
+                    case 'V':
+                        diasCalorias[encontrado].totalCalorias += ementa[j].caloriasVegetariano;
+                        break;
+                }
+                diasCalorias[encontrado].totalRefeicoes++;
             }
         }
     }
 
-    // Exibir os resultados apenas para os dias presentes no intervalo
-    const char* diasSemana[] = {"2feira", "3feira", "4feira", "5feira", "6feira"};
-
-    for (int i = 0; i < 5; i++) 
+    // Apresentar os resultados
+    for (int i = 0; i < diasCount; i++) 
     {
-        if (diasPresentes[i]) 
-        {   // Verificar se o dia foi presente no intervalo
-            if (totalRefeicoes[i] > 0) 
-            {
-                printf("| %-12s  | %-17d  | %-17.2f |\n", 
-                    diasSemana[i], 
-                    totalRefeicoes[i], 
-                    (float)totalCalorias[i] / totalRefeicoes[i]);
-            } else \
-            {
-                printf("| %-12s  | %-17d  | %-17s |\n", diasSemana[i], 0, "N/A");
-            }
-        }
+        printf("| %-12s  | %-17d  | %-17.2f |\n", 
+               diasCalorias[i].diaSemana, 
+               diasCalorias[i].totalRefeicoes, 
+               (float)diasCalorias[i].totalCalorias / diasCalorias[i].totalRefeicoes);
     }
+
     printf("----------------------------------------------------------\n");
+
+    free(diasCalorias);
+
     printf("\nPressione Enter para voltar ao menu...");
     getchar();
 }
