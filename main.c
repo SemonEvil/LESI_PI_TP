@@ -385,7 +385,6 @@ void CalcularMediaCalorias()
 
     if (!strcmp(dataInput2, "0")) return;
 
-
     // Substituir delimitadores por "/"
     for (int i = 0; i < strlen(dataInput2); i++) 
     {
@@ -402,18 +401,11 @@ void CalcularMediaCalorias()
     struct tm dataInicio = time1 < time2 ? data1 : data2;
     struct tm dataFim = time1 < time2 ? data2 : data1;
 
-    system("clear");
-    printf("\nMédias de Calorias Consumidas entre o dia %02d/%02d/%04d e %02d/%02d/%04d\n", 
-           dataInicio.tm_mday, dataInicio.tm_mon + 1, dataInicio.tm_year + 1900,
-           dataFim.tm_mday, dataFim.tm_mon + 1, dataFim.tm_year + 1900);
-    printf("----------------------------------------------------------\n");
-    printf("| Dia da Semana | Total de Refeições | Média de Calorias |\n");
-    printf("----------------------------------------------------------\n");
-
     // Utilizar uma estrutura dinâmica para armazenar os resultados
     struct DiaCalorias 
     {
         char diaSemana[10];
+        char data[11];
         int totalCalorias;
         int totalRefeicoes;
     };
@@ -428,7 +420,7 @@ void CalcularMediaCalorias()
             // Verificar se a escolha corresponde à ementa e está no intervalo de datas
             if (strcmp(escolhas[i].diaSemana, ementa[j].diaSemana) == 0 && 
                 difftime(mktime(&ementa[j].data), mktime(&dataInicio)) >= 0 &&
-                difftime(mktime(&ementa[j].data), mktime(&dataFim)) <= 0)
+                difftime(mktime(&ementa[j].data), mktime(&dataFim)) <= 0) 
                 {
                 
                 // Verificar se o dia já está nos resultados
@@ -447,6 +439,7 @@ void CalcularMediaCalorias()
                 {
                     diasCalorias = realloc(diasCalorias, (diasCount + 1) * sizeof(struct DiaCalorias));
                     strcpy(diasCalorias[diasCount].diaSemana, ementa[j].diaSemana);
+                    strftime(diasCalorias[diasCount].data, 11, "%d/%m/%Y", &ementa[j].data);
                     diasCalorias[diasCount].totalCalorias = 0;
                     diasCalorias[diasCount].totalRefeicoes = 0;
                     encontrado = diasCount;
@@ -454,20 +447,16 @@ void CalcularMediaCalorias()
                 }
 
                 // Incrementar as calorias e refeições para o dia encontrado
-                switch (escolhas[i].tipoPrato) 
-                {
+                switch (escolhas[i].tipoPrato) {
                     case 'C':
                         diasCalorias[encontrado].totalCalorias += ementa[j].caloriasCarne;
                         break;
-
                     case 'P':
                         diasCalorias[encontrado].totalCalorias += ementa[j].caloriasPeixe;
                         break;
-
                     case 'D':
                         diasCalorias[encontrado].totalCalorias += ementa[j].caloriasDieta;
                         break;
-
                     case 'V':
                         diasCalorias[encontrado].totalCalorias += ementa[j].caloriasVegetariano;
                         break;
@@ -477,19 +466,37 @@ void CalcularMediaCalorias()
         }
     }
 
-    // Apresentar os resultados
-    for (int i = 0; i < diasCount; i++) 
+    // Apresentar os resultados    
+    system("clear");
+
+    if (diasCount == 0)
     {
-        printf("| %-12s  | %-17d  | %-17.2f |\n", 
-               diasCalorias[i].diaSemana, 
-               diasCalorias[i].totalRefeicoes, 
-               (float)diasCalorias[i].totalCalorias / diasCalorias[i].totalRefeicoes);
+        printf("Não existem dias com refeições no intervalo especificado.\n");
+    }
+    else 
+    {
+        char dI[11], dF[11];
+        dataToSring(dataInicio, dI);
+        dataToSring(dataFim, dF);
+
+        printf("\nMédias de Calorias Consumidas entre o dia %s e %s\n", dI, dF);
+        printf("-----------------------------------------------------------------------\n");
+        printf("| Data       | Dia da Semana | Total de Refeições | Média de Calorias |\n");
+        printf("-----------------------------------------------------------------------\n");
+
+        for (int i = 0; i < diasCount; i++) 
+        {
+            printf("| %-10s | %-12s  | %-17d  | %-17.2f |\n", 
+                   diasCalorias[i].data,
+                   diasCalorias[i].diaSemana, 
+                   diasCalorias[i].totalRefeicoes, 
+                   (float)diasCalorias[i].totalCalorias / diasCalorias[i].totalRefeicoes);
+        }
+
+        printf("-----------------------------------------------------------------------\n");
     }
 
-    printf("----------------------------------------------------------\n");
-
     free(diasCalorias);
-
     printf("\nPressione Enter para voltar ao menu...");
     getchar();
 }
@@ -510,16 +517,20 @@ void TabelaEmenta(int numeroFuncionario)
                     printf("| %-10s", ementa[i].diaSemana);
 
                     // Preencher as colunas com base na escolha
-                    if (escolhas[j].tipoPrato == 'P') {
+                    if (escolhas[j].tipoPrato == 'P') 
+                    {
                         printf("| %-18s| %-8d| %-18s| %-8s| %-18s| %-8s| %-23s| %-8s|\n",
                             ementa[i].pratoPeixe, ementa[i].caloriasPeixe, "-", "-", "-", "-", "-", "-");
-                    } else if (escolhas[j].tipoPrato == 'C') {
+                    } else if (escolhas[j].tipoPrato == 'C') 
+                    {
                         printf("| %-18s| %-8s| %-18s| %-8d| %-18s| %-8s| %-23s| %-8s|\n",
                             "-", "-", ementa[i].pratoCarne, ementa[i].caloriasCarne, "-", "-", "-", "-");
-                    } else if (escolhas[j].tipoPrato == 'D') {
+                    } else if (escolhas[j].tipoPrato == 'D')
+                    {
                         printf("| %-18s| %-8s| %-18s| %-8s| %-18s| %-8d| %-23s| %-8s|\n",
                             "-", "-", "-", "-", ementa[i].pratoDieta, ementa[i].caloriasDieta, "-", "-");
-                    } else if (escolhas[j].tipoPrato == 'V') {
+                    } else if (escolhas[j].tipoPrato == 'V') 
+                    {
                         printf("| %-18s| %-8s| %-18s| %-8s| %-18s| %-8s| %-23s| %-8d|\n",
                             "-", "-", "-", "-", "-", "-", ementa[i].pratoVegetariano, ementa[i].caloriasVegetariano);
                     }
