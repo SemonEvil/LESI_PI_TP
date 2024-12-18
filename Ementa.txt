@@ -3,3 +3,8 @@
 4feira;20.11.2024;sopa de grão, salmão grelhado;250;sopa de tomate, lombinho de porco;400;sopa de agrião, peito de peru;230;sopa de alface, hambúrguer de lentilhas;210
 5feira;21.11.2024;sopa de couve-flor, bacalhau à Brás;220;sopa de alho-francês, frango assado com batatas;380;sopa de cenoura, bife grelhado com arroz;300;sopa de abóbora, tofu estufado;190
 6feira;22.11.2024;sopa de abóbora, peixe cozido com legumes;210;sopa de beterraba, carne de porco grelhada;360;sopa de ervilhas, frango grelhado com salada;250;sopa de tomate, hamburguer de feijão-preto;200
+2feira;25.11.2024;sopa de beterraba, frango grelhado com legumes;250;sopa de cenoura, peixe assado;350;sopa de espinafres, bife grelhado com batatas;280;sopa de tomate, quiche de legumes;230
+3feira;26.11.2024;sopa de grão, peixe grelhado com arroz;220;sopa de cebola, carne de porco estufada;380;sopa de alface, peito de frango assado;260;sopa de ervilhas, tofu estufado com vegetais;190
+4feira;27.11.2024;sopa de cogumelos, salmão grelhado;300;sopa de tomate, frango grelhado com arroz;350;sopa de cenoura, bife grelhado com legumes;280;sopa de espinafres, omelete de cogumelos;210
+5feira;28.11.2024;sopa de alho-francês, bacalhau cozido com grão;230;sopa de alface, peito de frango grelhado com arroz;300;sopa de grão, peixe assado com batatas;250;sopa de abóbora, feijão estufado;220
+6feira;29.11.2024;sopa de ervilhas, carne de porco grelhada com arroz;350;sopa de abóbora, tofu grelhado;200;sopa de cenoura, bife grelhado com batatas;280;sopa de tomate, quiche de espinafres;230
