@@ -1,29 +1,29 @@
 #ifndef JUNTAR_H
 #define JUNTAR_H
 
-#include <time.h> // Para a struct tm utilizada em dataToString
+#include <time.h> // Para manipulação de datas
 
-// Conversão e manipulação de datas
-int diaSemanaParaInt(char* dia);
-void dataToString(struct tm data, char dataf[]);
+// Funções para manipulação de datas
+int diaSemanaParaInt(char* dia); // Converte um dia da semana para inteiro
+void dataToString(struct tm data, char dataf[]); // Converte uma data para string
 
-// Funções principais
-void Menu();
-void openFuncionarios();
-void openEscolhas();
-void openEmenta();
+// Funções principais do programa
+void Menu(); // Exibe o menu principal
+void openFuncionarios(); // Carrega dados dos funcionários
+void openEscolhas(); // Carrega as escolhas dos utentes
+void openEmenta(); // Carrega a ementa
 
 // Operações de listagem
-void MostrarRefeicao();
-void ListarUtentes();
-void ListarRefeicoes(int numFuncionario);
+void MostrarRefeicao(); // Mostra informações de uma refeição
+void ListarUtentes(); // Lista os utentes
+void ListarRefeicoes(int numFuncionario); // Lista refeições de um funcionário
 
-// Comparações para ordenação
-int compararPorDataR(const void *a, const void *b);
-int compararPorDataC(const void *a, const void *b);
+// Funções de comparação
+int compararPorDataR(const void *a, const void *b); // Ordena por data decrescente
+int compararPorDataC(const void *a, const void *b); // Ordena por data crescente
 
-// Cálculos
-void CalcularMediaCalorias();
-void TabelaEmenta(int numeroFuncionario);
+// Funções para cálculos
+void CalcularMediaCalorias(); // Calcula a média de calorias
+void TabelaEmenta(int numeroFuncionario); // Gera tabela de ementa por funcionário
 
 #endif

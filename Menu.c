@@ -16,6 +16,7 @@
 #include <string.h>
 #include <time.h>
 
+// Função que exibe o menu principal do sistema
 void Menu() {
     system("clear");
     printf("╔════════════════════════════════════════════════╗\n");
